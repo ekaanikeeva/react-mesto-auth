@@ -11,6 +11,12 @@ import { CardsContext } from "../context/CardsContext.js";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup.js";
 import AddPlacePopup from "./AddPlacePopup.js";
+import { Route, Switch, useHistory } from "react-router";
+import Login from "./Login.js";
+import Register from "./Register.js";
+import InfoTooltip from "./InfoTooltip.js";
+import ProtectedRoute from "./ProtectedRoute.js";
+import { register, login, token } from "../utils/apiAuth.js";
 
 function App() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = React.useState(false);
@@ -20,7 +26,28 @@ function App() {
   const [selectedCard, setSelectedCard] = React.useState(null);
   const [currentUser, setCurrentUser] = React.useState("");
   const [cards, setCards] = React.useState([]);
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
+  const [isHappyRegister, setIsHappyRegister] = React.useState(false);
+  const [userEmail, setUserEmail] = React.useState("");
+  const history = useHistory();
 
+  function tokenCheck() {
+    if (localStorage.getItem("token")) {
+      const jwt = localStorage.getItem("token");
+      token(jwt)
+        .then((res) => {
+          setLoggedIn(true);
+          setUserEmail(res.data.email);
+          history.push("/");
+        })
+        .catch((err) => console.log(err));
+    } else return;
+  }
+
+  React.useEffect(()=> {
+    tokenCheck();
+  })
   React.useEffect(() => {
     api
       .getUserInfo()
@@ -37,7 +64,13 @@ function App() {
       .catch((err) => {
         console.log(`Не удалось загрузить карточки на страницу ${err}`);
       });
+
+    
   }, []);
+
+  function handleInfoTooltip() {
+    setIsInfoTooltipOpen(true);
+  }
   function handleEditAvatarClick() {
     setIsAvatarPopupOpen(true);
   }
@@ -56,6 +89,7 @@ function App() {
     setIsAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
     setSelectedCard(null);
+    setIsInfoTooltipOpen(false);
   }
 
   function handleCardLike(card) {
@@ -98,9 +132,7 @@ function App() {
       .deleteCard(card._id)
       .then(() =>
         setCards((cardsArray) =>
-          cardsArray.filter((element) =>
-            element._id === card._id ? card.remove : element
-          )
+          cardsArray.filter((element) => element._id !== card._id)
         )
       )
       .catch((err) => {
@@ -144,6 +176,39 @@ function App() {
       });
   }
 
+  function handleRegister(email, password) {
+    register(password, email)
+      .then(() => {
+        setIsHappyRegister(true);
+        setIsInfoTooltipOpen(true);
+        history.push("/signin");
+      })
+      .catch((err) => {
+        setIsHappyRegister(false);
+        setIsInfoTooltipOpen(true);
+        console.log(`Не удалось зарегистрироваться ${err}`);
+      });
+  }
+
+  function handleLogin(email, password) {
+    login(password, email)
+      .then((res) => {
+        setLoggedIn(true);
+        setUserEmail(email);
+        history.push("/");
+        localStorage.setItem("token", res.token);
+      })
+      .catch((err) => {
+        console.log(`Не удалось войти ${err}`);
+      });
+  }
+
+  function signOut () {
+    localStorage.removeItem("token")
+    setLoggedIn(false)
+    history.push('/signin')
+  }
+
   return (
     <div className="root">
       <CurrentUserContext.Provider value={currentUser}>
@@ -171,18 +236,42 @@ function App() {
           nameSubmitBtn="Да"
         ></PopupWithForm>
 
-        <Header />
-        <CardsContext.Provider value={cards}>
-          <Main
-            onEditProfile={handleEditProfileClick}
-            onAddPlace={handleAddPlaceClick}
-            onEditAvatar={handleEditAvatarClick}
-            onCardClick={handleCardClick}
-            handleCardLike={handleCardLike}
-            handleCardDelete={handleCardDelete}
-          />
-        </CardsContext.Provider>
-        <Footer />
+        <InfoTooltip
+          name="log"
+          isOpen={isInfoTooltipOpen}
+          onClose={closeAllPopups}
+          whatRegister={isHappyRegister}
+        />
+        <Header email={userEmail} out={signOut}/>
+        <Switch>
+
+          <Route path="/signup">
+            <Register
+              name="register"
+              onClose={closeAllPopups}
+              isOpen={handleInfoTooltip}
+              onRegister={handleRegister}
+            />
+          </Route>
+          <Route path="/signin">
+            <Login name="login" onLogin={handleLogin} />
+          </Route>
+          <CardsContext.Provider value={cards}>
+            <ProtectedRoute
+              exact
+              path="/"
+              component={Main}
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onEditAvatar={handleEditAvatarClick}
+              onCardClick={handleCardClick}
+              handleCardLike={handleCardLike}
+              handleCardDelete={handleCardDelete}
+              loggedIn={loggedIn}
+            />
+          </CardsContext.Provider>
+          <Footer />
+        </Switch>
         {selectedCard && (
           <ImagePopup
             isOpen={selectedCard}
