@@ -24,7 +24,7 @@ function App() {
     React.useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState(null);
-  const [currentUser, setCurrentUser] = React.useState("");
+  const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
@@ -45,9 +45,9 @@ function App() {
     } else return;
   }
 
-  React.useEffect(()=> {
+  React.useEffect(() => {
     tokenCheck();
-  })
+  }, []);
   React.useEffect(() => {
     api
       .getUserInfo()
@@ -64,13 +64,8 @@ function App() {
       .catch((err) => {
         console.log(`Не удалось загрузить карточки на страницу ${err}`);
       });
-
-    
   }, []);
 
-  function handleInfoTooltip() {
-    setIsInfoTooltipOpen(true);
-  }
   function handleEditAvatarClick() {
     setIsAvatarPopupOpen(true);
   }
@@ -203,10 +198,10 @@ function App() {
       });
   }
 
-  function signOut () {
-    localStorage.removeItem("token")
-    setLoggedIn(false)
-    history.push('/signin')
+  function signOut() {
+    localStorage.removeItem("token");
+    setLoggedIn(false);
+    history.push("/signin");
   }
 
   return (
@@ -242,16 +237,10 @@ function App() {
           onClose={closeAllPopups}
           whatRegister={isHappyRegister}
         />
-        <Header email={userEmail} out={signOut}/>
+        <Header email={userEmail} out={signOut} />
         <Switch>
-
           <Route path="/signup">
-            <Register
-              name="register"
-              onClose={closeAllPopups}
-              isOpen={handleInfoTooltip}
-              onRegister={handleRegister}
-            />
+            <Register name="register" onRegister={handleRegister} />
           </Route>
           <Route path="/signin">
             <Login name="login" onLogin={handleLogin} />
@@ -272,14 +261,12 @@ function App() {
           </CardsContext.Provider>
           <Footer />
         </Switch>
-        {selectedCard && (
-          <ImagePopup
-            isOpen={selectedCard}
-            onClose={closeAllPopups}
-            link={selectedCard.link}
-            name={selectedCard.name}
-          ></ImagePopup>
-        )}
+        <ImagePopup
+          isOpen={selectedCard}
+          onClose={closeAllPopups}
+          link={selectedCard?.link}
+          name={selectedCard?.name}
+        ></ImagePopup>
       </CurrentUserContext.Provider>
     </div>
   );

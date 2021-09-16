@@ -25,7 +25,6 @@ function Register(props) {
         name={props.name}
         className={`form form_login`}
         onSubmit={handleSubmit}
-        noValidate
       >
         <h2 className="form__title form__title_login">Регистрация</h2>
         <input

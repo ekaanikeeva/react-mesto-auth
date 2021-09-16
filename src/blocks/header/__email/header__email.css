@@ -11,8 +11,8 @@
 }
 
 @media all and (max-width: 480px) {
-    .header__email {
-        font-size: 14px;
-        line-height: 17px;
-    }
+  .header__email {
+    font-size: 14px;
+    line-height: 17px;
+  }
 }

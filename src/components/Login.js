@@ -18,48 +18,41 @@ function Login(props) {
   }
 
   return (
-    <>
-      <form
-        action="#"
-        name={props.name}
-        className={`form form_login`}
-        onSubmit={handleSubmit}
-        noValidate
-      >
-        <h2 className="form__title form__title_login">Вход</h2>
-        <input
-          onChange={handleChangeEmail}
-          value={email || ""}
-          type="email"
-          name="email"
-          className="form__info form__info_login form__info_title"
-          id="input-email"
-          placeholder="E-mail"
-          required
-          minLength={2}
-          maxLength={30}
-        />
-        <span className="input-title-error form__input-error" />
-        <input
-          onChange={handleChangePassword}
-          value={password || ""}
-          type="password"
-          name="password"
-          className="form__info form__info_login form__info_link"
-          placeholder="Пароль"
-          id="input-password"
-          required
-        />
-        <span className="input-link-error form__input-error" />
-        <button
-          onClick={props.isOpen}
-          type="submit"
-          className="form__btn-save form__btn-save_login"
-        >
-          Войти
-        </button>
-      </form>
-    </>
+    <form
+      action="#"
+      name={props.name}
+      className={`form form_login`}
+      onSubmit={handleSubmit}
+    >
+      <h2 className="form__title form__title_login">Вход</h2>
+      <input
+        onChange={handleChangeEmail}
+        value={email || ""}
+        type="email"
+        name="email"
+        className="form__info form__info_login form__info_title"
+        id="input-email"
+        placeholder="E-mail"
+        required
+        minLength={2}
+        maxLength={30}
+      />
+      <span className="input-title-error form__input-error" />
+      <input
+        onChange={handleChangePassword}
+        value={password || ""}
+        type="password"
+        name="password"
+        className="form__info form__info_login form__info_link"
+        placeholder="Пароль"
+        id="input-password"
+        required
+      />
+      <span className="input-link-error form__input-error" />
+      <button type="submit" className="form__btn-save form__btn-save_login">
+        Войти
+      </button>
+    </form>
   );
 }
 

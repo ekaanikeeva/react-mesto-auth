@@ -13,7 +13,7 @@ function ImagePopup(props) {
           title="Закрыть"
           onClick={props.onClose}
         />
-        <img className="popup__img" src={props.link} alt="#" />
+        <img className="popup__img" src={props.link} alt={props.name} />
         <h2 className="popup__name">{props.name}</h2>
       </div>
     </section>
